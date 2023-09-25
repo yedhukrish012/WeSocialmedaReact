@@ -6,51 +6,52 @@ import AdminNavbar from "../components/AdminNavbar";
 
 const BlockedPostList = () => {
 const [Bposts, setBPosts] = useState([]);
+const [trigger, setTrigger] = useState(false);
 const accessToken = localStorage.getItem("access_token");
 
 useEffect(() => {
-    Axios.get(`${BASE_URL}/blockedposts/`, {
-        headers: {
-        Authorization: `Bearer ${accessToken}`,
-        },
-    })
-        .then((response) => {
-        setBPosts(response.data);
-        })
-        .catch((error) => {
-        console.error(error);
-        });
-    }, [accessToken,Bposts]);
+  Axios.get(`${BASE_URL}/blockedposts/`, {
+      headers: {
+      Authorization: `Bearer ${accessToken}`,
+      },
+  })
+      .then((response) => {
+      setBPosts(response.data);
+      })
+      .catch((error) => {
+      console.error(error);
+      });
+}, [accessToken,trigger]);
 
-
-    
-    const handleBlockPost = async (id, isBlocked) => {
-        const accessToken = localStorage.getItem('access_token');
-        try {
-          const response = await fetch(`${BASE_URL}/blockpost/${id}/`, {
-            method: 'POST',
-            headers: {
+const handleBlockPost = async (id, isBlocked) => {
+  const accessToken = localStorage.getItem('access_token');
+  try {
+      const response = await fetch(`${BASE_URL}/blockpost/${id}/`, {
+          method: 'POST',
+          headers: {
               Accept: 'application/json',
               Authorization: `Bearer ${accessToken}`,
-            },
-          });
-          if (response.status === 200) {
-            setBPosts((prevRposts) =>
-              prevRposts.map((post) =>
-                post.id === id ? { ...post, is_blocked: !isBlocked } : post
+          },
+      });
+      if (response.status === 200) {
+          setBPosts((prevBposts) =>
+              prevBposts.map((post) =>
+                  post.id === id ? { ...post, is_blocked: !isBlocked } : post
               )
-            );
-            const actionMessage = isBlocked ? 'Unblocked a Post' : 'Blocked a Post';
-            toast.success(actionMessage, {
+          );
+          const actionMessage = isBlocked ? 'Unblocked a Post' : 'Blocked a Post';
+          toast.success(actionMessage, {
               position: 'top-center',
-            });
-          } else {
-            console.error('Failed to block/unblock post');
-          }
-        } catch (error) {
-          console.error('Error blocking/unblocking post:', error);
-        }
-      };
+          });
+          setTrigger(false)
+      } else {
+          console.error('Failed to block/unblock post');
+      }
+  } catch (error) {
+      console.error('Error blocking/unblocking post:', error);
+  }
+};
+
 
 
   return (
@@ -103,7 +104,10 @@ useEffect(() => {
                         ? 'bg-red-500 hover:bg-red-600'
                         : 'bg-green-500 hover:bg-green-600'
                     } text-white py-1 px-2 rounded-full`}
-                    onClick={() => handleBlockPost(post.id, post.is_blocked)}
+                    onClick={() => {
+                      handleBlockPost(post.id, post.is_blocked);
+                      setTrigger(true); 
+                    }}
                   >
                     {post.is_blocked ? 'Unblock' : 'Block'}
                   </button>

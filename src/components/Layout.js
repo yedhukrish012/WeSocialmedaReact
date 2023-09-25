@@ -11,7 +11,9 @@ const Layout = ({title,content,children}) => {
             <title>{title}</title>
             <meta name='description' content={content} />
       </Helmet>
-      <NavBar/>
+     <div className="fixed top-0 w-full bg-white shadow-lg z-50">
+     <NavBar/>
+     </div>
       <div >
         {children}
       </div>

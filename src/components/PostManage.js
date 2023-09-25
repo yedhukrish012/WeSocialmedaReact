@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import createPostApi from "../api/CreatePostApi";
-import UpdatePostApi from "../api/UpdatePostApi";
+
 import {FaTimes}   from   "react-icons/fa"
  
 
@@ -12,33 +12,18 @@ const PostManage = ({ postId,onCancel }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (postId) {
-      try {
-        await UpdatePostApi(postId, caption, image);
-        toast.success("Successfully Updated", {
-          position: "top-center",
-        });
-      } catch (error) {
-        toast.error("Failed to Update Post", {
-          position: "top-center",
-        });
-      }
-    } else {
-      try {
-        await createPostApi(caption, image);
-        toast.success("Successfully Created", {
-          position: "top-center",
-        });
-        setTimeout(() => {
-          onCancel()
-          // window.location.reload();
-         
-        }, 2000);
-      } catch (error) {
-        toast.error("Failed to Create Post", {
-          position: "top-center",
-        });
-      }
+    try {
+      await createPostApi(caption, image);
+      toast.success("Successfully Created", {
+        position: "top-center",
+      });
+      setTimeout(() => {
+        onCancel();
+      }, 2000);
+    } catch (error) {
+      toast.error("Failed to Create Post", {
+        position: "top-center",
+      });
     }
   };
 
@@ -63,7 +48,6 @@ const PostManage = ({ postId,onCancel }) => {
     document.getElementById("image").click();
   };
 
-
   const modalRef = useRef();
 
   const handleOutsideClick = (event) => {
@@ -73,9 +57,9 @@ const PostManage = ({ postId,onCancel }) => {
   };
 
   useEffect(() => {
-    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener("mousedown", handleOutsideClick);
     return () => {
-      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener("mousedown", handleOutsideClick);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

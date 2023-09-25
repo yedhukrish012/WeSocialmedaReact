@@ -1,6 +1,6 @@
 
 import { BASE_URL } from "../utils/constants";
-import { toast } from "react-toastify";
+
 
 const deletePostApi = async (id) => {
   const accessToken = localStorage.getItem("access_token");
@@ -13,9 +13,6 @@ const deletePostApi = async (id) => {
     });
 
     if (response.status === 200) {
-      toast.success("Post Deleted", {
-        position: "top-center",
-      });
     } else {
       console.error("Post not deleted");
     }

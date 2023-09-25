@@ -3,19 +3,23 @@ import Axios from "axios";
 import { BASE_URL } from "../utils/constants";
 import { toast } from "react-toastify";
 import AdminNavbar from "../components/AdminNavbar";
+import PostDetail from "../components/PostDetail";
 
 const AdminPostManage = () => {
   const [posts, setPosts] = useState([]);
+  const [PostDetailOpen, setPostDetailOpen] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const accessToken = localStorage.getItem("access_token");
 
   useEffect(() => {
-    Axios.get(`${BASE_URL}/listpost/`, {
+    Axios.get(`${BASE_URL}/posts/`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
     })
       .then((response) => {
+        console.log(response, "");
         setPosts(response.data);
       })
       .catch((error) => {
@@ -54,87 +58,110 @@ const AdminPostManage = () => {
   };
 
   const filteredPosts = posts.filter((post) => {
-    const title = post.content || ""; 
-    const authorUsername = post.author?.username ||""; 
+    const title = post.content || "";
+    const authorUsername = post.author?.username || "";
     return (
       title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       authorUsername.toLowerCase().includes(searchQuery.toLowerCase())
     );
   });
+  console.log(posts, "postssssssss");
 
+  const openPostDetailModal = (postId) => {
+    setSelectedPostId(postId);
+    setPostDetailOpen(true);
+  };
+
+  // Function to close the CommentModal
+  const closeCommentModal = () => {
+    setPostDetailOpen(false);
+  };
 
   return (
     <>
       <AdminNavbar />
+
       <div className="min-h-screen bg-gradient-to-br from-violet-400 via-white to-violet-400  py-12 px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-bold text-white mb-6">Admin Posts List</h1>
         <div className="flex justify-center items-center mb-7">
-            <input
-              type="text"
-              placeholder="Search users..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-full w-2/4 rounded-full bg-white border-gray-300 shadow-md text-sm font-medium text-black placeholder-gray-800 dark:bg-navy-700 dark:text-white dark:placeholder-gray-700 px-4 py-2 pb-2"
-              style={{ "::placeholder": { color: "black" } }}
-            />
-          </div>
-        <div className="mt-6 bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full">
-            <thead>
-              <tr>
-                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                  ID
-                </th>
-                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                  Author
-                </th>
-                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                  Content
-                </th>
-                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                  Image
-                </th>
-                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-               {filteredPosts.map((post) => (
-                <tr key={post.id}>
-                  <td className="px-6 py-4 whitespace-no-wrap">{post.id}</td>
-                  <td className="px-6 py-4 whitespace-no-wrap">
-                    {post.author.username}
-                  </td>
-                  <td className="px-6 py-4 whitespace-no-wrap">
-                    {post.content}
-                  </td>
-                  <td className="px-6 py-4 whitespace-no-wrap">
-                    <div className="w-24 h-24">
-                      <img
-                        src={`${BASE_URL}${post.img}`}
-                        alt={`Post by ${post.author.username}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-no-wrap">
-                    <button
-                      className={`${
-                        post.is_blocked
-                          ? "bg-green-500 hover:bg-green-600"
-                          : "bg-red-500 hover:bg-red-600"
-                      } text-white py-1 px-2 rounded-full`}
-                      onClick={() => handleBlockPost(post.id, post.is_blocked)}
-                    >
-                      {post.is_blocked ? "Unblock" : "Block"}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <input
+            type="text"
+            placeholder="Search users..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="h-full w-2/4 rounded-full bg-white border-gray-300 shadow-md text-sm font-medium text-black placeholder-gray-800 dark:bg-navy-700 dark:text-white dark:placeholder-gray-700 px-4 py-2 pb-2"
+            style={{ "::placeholder": { color: "black" } }}
+          />
         </div>
+
+        {PostDetailOpen ? (
+          <PostDetail
+            isOpen={PostDetailOpen}
+            onCancel={closeCommentModal}
+            postId={selectedPostId}
+          />
+        ) : (
+          <div className="mt-6 bg-white rounded-lg shadow overflow-hidden">
+            <table className="min-w-full">
+              <thead>
+                <tr>
+                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                    ID
+                  </th>
+                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                    Author
+                  </th>
+                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                    Content
+                  </th>
+                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                    Image
+                  </th>
+                  <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                    Action
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredPosts.map((post) => (
+                  <tr key={post.id}>
+                    <td className="px-6 py-4 whitespace-no-wrap">{post.id}</td>
+                    <td className="px-6 py-4 whitespace-no-wrap">
+                      {post.author?.username}
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap">
+                      {post.content}
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap">
+                      <div className="w-24 h-24">
+                        <img
+                          onClick={() => openPostDetailModal(post.id)}
+                          src={post.img}
+                          alt={`Post by ${post.author?.username}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap">
+                      <button
+                        className={`${
+                          post.is_blocked
+                            ? "bg-green-500 hover:bg-green-600"
+                            : "bg-red-500 hover:bg-red-600"
+                        } text-white py-1 px-2 rounded-full`}
+                        onClick={() =>
+                          handleBlockPost(post.id, post.is_blocked)
+                        }
+                      >
+                        {post.is_blocked ? "Unblock" : "Block"}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </>
   );

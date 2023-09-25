@@ -5,115 +5,137 @@ import { toast } from "react-toastify";
 import AdminNavbar from "../components/AdminNavbar";
 
 const ReportedPostList = () => {
-const [Rposts, setRPosts] = useState([]);
-const accessToken = localStorage.getItem("access_token");
+  const [Rposts, setRPosts] = useState([]);
+  const accessToken = localStorage.getItem("access_token");
 
-useEffect(() => {
+  useEffect(() => {
     Axios.get(`${BASE_URL}/listreportedposts/`, {
-        headers: {
+      headers: {
         Authorization: `Bearer ${accessToken}`,
-        },
+      },
     })
-        .then((response) => {
+      .then((response) => {
         setRPosts(response.data);
-        })
-        .catch((error) => {
+      })
+      .catch((error) => {
         console.error(error);
+      });
+  }, [accessToken]);
+
+  const groupPosts = (posts) => {
+    const groupedPosts = posts.reduce((accumulator, post) => {
+      const postId = post.id;
+      if (!accumulator[postId]) {
+        accumulator[postId] = { ...post, reports_count: 0 };
+      }
+      accumulator[postId].reports_count++;
+      return accumulator;
+    }, {});
+
+    return Object.values(groupedPosts);
+  };
+
+  const handleBlockPost = async (id, isBlocked) => {
+    const accessToken = localStorage.getItem("access_token");
+    try {
+      const response = await fetch(`${BASE_URL}/blockpost/${id}/`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      if (response.status === 200) {
+        setRPosts((prevRposts) =>
+          prevRposts.map((post) =>
+            post.id === id ? { ...post, is_blocked: !isBlocked } : post
+          )
+        );
+        const actionMessage = isBlocked ? "Unblocked a Post" : "Blocked a Post";
+        toast.success(actionMessage, {
+          position: "top-center",
         });
-    }, [accessToken]);
+      } else {
+        console.error("Failed to block/unblock post");
+      }
+    } catch (error) {
+      console.error("Error blocking/unblocking post:", error);
+    }
+  };
 
-
-    const handleBlockPost = async (id, isBlocked) => {
-        const accessToken = localStorage.getItem('access_token');
-        try {
-          const response = await fetch(`${BASE_URL}/blockpost/${id}/`, {
-            method: 'POST',
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
-          if (response.status === 200) {
-            setRPosts((prevRposts) =>
-              prevRposts.map((post) =>
-                post.id === id ? { ...post, is_blocked: !isBlocked } : post
-              )
-            );
-            const actionMessage = isBlocked ? 'Unblocked a Post' : 'Blocked a Post';
-            toast.success(actionMessage, {
-              position: 'top-center',
-            });
-          } else {
-            console.error('Failed to block/unblock post');
-          }
-        } catch (error) {
-          console.error('Error blocking/unblocking post:', error);
-        }
-      };
+  const groupedPosts = groupPosts(Rposts);
 
   return (
     <>
-    <AdminNavbar />
-    <div className="min-h-screen bg-gradient-to-br from-violet-400 via-white to-violet-400 py-12 px-4 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-bold text-white mb-6">Admin Reported Posts List</h1>
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full">
-          <thead>
-            <tr>
-              <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                ID
-              </th>
-              <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                Author
-              </th>
-              <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                Content
-              </th>
-              <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                Image
-              </th>
-              <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {Rposts.map((post) => (
-              <tr key={post.id}>
-                <td className="px-6 py-4 whitespace-no-wrap">{post.id}</td>
-                <td className="px-6 py-4 whitespace-no-wrap">
-                  {post.author.username}
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap">{post.content}</td>
-                <td className="px-6 py-4 whitespace-no-wrap">
-                  <div className="w-24 h-24">
-                    <img
-                      src={post.img}
-                      alt={`Post by ${post.author.username}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-no-wrap">
-                  <button
-                    className={`${
-                      post.is_blocked
-                        ? 'bg-red-500 hover:bg-red-600'
-                        : 'bg-green-500 hover:bg-green-600'
-                    } text-white py-1 px-2 rounded-full`}
-                    onClick={() => handleBlockPost(post.id, post.is_blocked)}
-                  >
-                    {post.is_blocked ? 'Unblock' : 'Block'}
-                  </button>
-                </td>
+      <AdminNavbar />
+      <div className="min-h-screen bg-gradient-to-br from-violet-400 via-white to-violet-400 py-12 px-4 sm:px-6 lg:px-8">
+        <h1 className="text-3xl font-bold text-white mb-6">
+          Admin Reported Posts List
+        </h1>
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <table className="min-w-full">
+            <thead>
+              <tr>
+                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                  ID
+                </th>
+                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                  Author
+                </th>
+                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                  Content
+                </th>
+                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                  Image
+                </th>
+                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                  Reports
+                </th>
+                <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                  Action
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {groupedPosts.map((post) => (
+                <tr key={post.id}>
+                  <td className="px-6 py-4 whitespace-no-wrap">{post.id}</td>
+                  <td className="px-6 py-4 whitespace-no-wrap">
+                    {post.author.username}
+                  </td>
+                  <td className="px-6 py-4 whitespace-no-wrap">{post.content}</td>
+                  <td className="px-6 py-4 whitespace-no-wrap">
+                    <div className="w-24 h-24">
+                      <img
+                        src={post.img}
+                        alt={`Post by ${post.author.username}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-no-wrap">
+                    {post.reports_count} {/* Display total reports */}
+                  </td>
+                  <td className="px-6 py-4 whitespace-no-wrap">
+                    <button
+                      className={`${
+                        post.is_blocked
+                          ? "bg-red-500 hover:bg-red-600"
+                          : "bg-green-500 hover:bg-green-600"
+                      } text-white py-1 px-2 rounded-full`}
+                      onClick={() => handleBlockPost(post.id, post.is_blocked)}
+                    >
+                      {post.is_blocked ? "Unblock" : "Block"}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
-  </>
-  )
-}
+    </>
+  );
+};
 
-export default ReportedPostList
+export default ReportedPostList;
