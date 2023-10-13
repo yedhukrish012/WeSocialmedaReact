@@ -3,11 +3,13 @@ import { BASE_URL } from '../utils/constants';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import Layout from '../components/Layout';
+import { useNavigate } from 'react-router-dom';
 
 const FollowingListPage = () => {
   const accessToken = localStorage.getItem('access_token');
   const [following, setFollowing] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate()
   const { user, isAuthenticated } = useSelector((state) => state.user);
 
   useEffect(() => {
@@ -31,6 +33,11 @@ const FollowingListPage = () => {
   const filteredFollowing = following.filter((followingUser) =>
     followingUser.following.username.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const navigateToAuthorProfile = (userId) => {
+    console.log(userId,"iam the coming userid")
+    navigate(`/authors/${userId}`);
+  };
 
   return (
     <Layout title="Followings" content="Your followings list">
@@ -57,7 +64,7 @@ const FollowingListPage = () => {
             <tbody>
               {filteredFollowing.map((followingUser) => (
                 <tr key={followingUser.id} className="border-t">
-                  <td className="py-3 px-6 border-b border-gray-300">
+                  <td className="py-3 px-6 border-b border-gray-300" onClick={() => navigateToAuthorProfile(followingUser.following.id)}>
                     {followingUser.following.username}
                   </td>
                   <td className="py-3 px-6 border-b border-gray-300">
@@ -65,6 +72,7 @@ const FollowingListPage = () => {
                       src={followingUser.following.profile_pic}
                       alt={`${followingUser.following.username}'s profile`}
                       className="w-12 h-12 rounded-full"
+                      onClick={() => navigateToAuthorProfile(followingUser.following.id)}
                     />
                   </td>
                   <td className="py-3 px-6 border-b border-gray-300">

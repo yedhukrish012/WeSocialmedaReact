@@ -4,12 +4,14 @@ import { useSelector } from 'react-redux';
 import { BASE_URL } from '../utils/constants';
 import Layout from '../components/Layout';
 import FollowUnfollowApi from '../api/FollowUnfollowApi';
+import { useNavigate } from 'react-router-dom';
 
 const FollowerListPage = () => {
   const [trigger, setTrigger] = useState(false);
   const accessToken = localStorage.getItem('access_token');
   const [followers, setFollowers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate()
   const { user, isAuthenticated } = useSelector((state) => state.user);
 
   useEffect(() => {
@@ -47,6 +49,14 @@ const FollowerListPage = () => {
     const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
+
+
+  const navigateToAuthorProfile = (userId) => {
+    console.log(userId,"iam the coming userid")
+    navigate(`/authors/${userId}`);
+  };
+
+  console.log(followers,"followers")
 
   return (
     <Layout title="Followers" content="Your followers list">
@@ -88,11 +98,13 @@ const FollowerListPage = () => {
                         src={follower.follower.profile_pic}
                         alt={`${follower.follower.username}'s profile`}
                         className="w-12 h-12 rounded-full"
+                        onClick={() => navigateToAuthorProfile(follower.follower.id)}
+                      
                       />
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <h2 className="text-lg font-semibold">{follower.follower.username}</h2>
+                    <h2 className="text-lg font-semibold" onClick={() => navigateToAuthorProfile(follower.follower.id)}>{follower.follower.username}</h2>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-black">
                     {formatDate(follower.follower.last_login)}

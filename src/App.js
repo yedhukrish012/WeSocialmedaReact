@@ -17,7 +17,8 @@ import BlockedPostList from './pages/BlockedPostList';
 import FollowerListPage from './pages/FollowerListPage';
 import FollowingListPage from './pages/FollowingListPage';
 import UserProfile from './pages/UserProfile';
-import UpdateProfilePic from './components/UpdateProfilePic';
+import Profiles from './pages/Profiles';
+import MessagePage from './pages/MessagePage';
 
 
 function App() {
@@ -46,7 +47,8 @@ function App() {
           <Route path ='/followers' element = {<FollowerListPage/>} /> 
           <Route path ='/following' element = {<FollowingListPage/>} /> 
           <Route path = '/profile'  element = {<UserProfile/>}/>
-          <Route path = '/updatpro'  element = {<UpdateProfilePic/>}/>
+          <Route path="/authors/:id" element={<Profiles/>} />
+          <Route path="/message" element={<MessagePage/>} />
           <Route path ='/*' element = {<ErrorPage/>} /> 
         </Routes>
       </Router>
