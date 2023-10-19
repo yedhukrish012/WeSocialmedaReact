@@ -6,7 +6,9 @@ import GetChatMessages from "../api/GetChatMessages";
 import MessageSeenAPI from "../api/MessageSeenAPI";
 import Layout from "../components/Layout";
 import { BASE_URL } from "../utils/constants";
+import { Navigate } from "react-router-dom";
 import { AiOutlineSend } from "react-icons/ai";
+
 
 const MessagePage = () => {
   const [profiles, setProfiles] = useState([]);
@@ -15,8 +17,9 @@ const MessagePage = () => {
   const [trigger, setTrigger] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
   const [selectedProfile, setSelectedProfile] = useState(null);
-  const { user } = useSelector((state) => state.user);
+  const { user ,isAuthenticated} = useSelector((state) => state.user);
   const chatMessagesContainerRef = useRef(null);
+  const [hasJoinedChatroom, setHasJoinedChatroom] = useState(false);
 
   console.log(profiles, "my profiles");
 
@@ -68,7 +71,9 @@ const MessagePage = () => {
       const accessToken = localStorage.getItem("access_token");
       const websocketProtocol =
         window.location.protocol === "https:" ? "wss://" : "ws://";
-      const wsUrl = `${websocketProtocol}127.0.0.1:8000/ws/chat/${data.id}/?token=${accessToken}`;
+      // const wsUrl = `${websocketProtocol}127.0.0.1:8000/ws/chat/${data.id}/?token=${accessToken}`;
+      const wsUrl = `${websocketProtocol}we.theghostkart.shop:8001/ws/chat/${data.id}/?token=${accessToken}`;
+
       const newChatWs = new WebSocket(wsUrl);
       setTrigger(false);
 
@@ -100,11 +105,16 @@ const MessagePage = () => {
       };
 
       setWs(newChatWs);
+       setHasJoinedChatroom(true); 
     } catch (error) {
       console.error(error);
     }
     setSelectedProfile(userId);
   };
+
+  if (!isAuthenticated  && user === null) {
+    return <Navigate to="/" />;
+  }
 
   console.log(messages);
 
@@ -147,24 +157,26 @@ const MessagePage = () => {
             ))}
           </div>
           {/* Input Field for Sending Messages */}
-          <div className="bg-gray-200 p-4 rounded-lg">
-            <div className="relative flex items-center w-full">
-              <input
-                type="text"
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                className="flex-auto p-2 rounded-full border border-gray-300 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                placeholder="Type your message..."
-              />
-              <button
-                className="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500 text-white shadow-md transition duration-150 ease-in-out hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                type="button"
-                onClick={handleSendMessage}
-              >
-                <AiOutlineSend />
-              </button>
+          {hasJoinedChatroom && (
+            <div className="bg-gray-200 p-4 rounded-lg">
+              <div className="relative flex items-center w-full">
+                <input
+                  type="text"
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  className="flex-auto p-2 rounded-full border border-gray-300 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="Type your message..."
+                />
+                <button
+                  className="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500 text-white shadow-md transition duration-150 ease-in-out hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  type="button"
+                  onClick={handleSendMessage}
+                >
+                  <AiOutlineSend />
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
         <div className="w-2/5 p-4">
           {/* List of Chat Profiles */}

@@ -45,7 +45,7 @@ const NavBar = () => {
         window.location.protocol === "https:" ? "wss://" : "ws://";
       // const socket = new WebSocket(`${websocketProtocol}${window.location.host}/ws/notification/?token=${accessToken}`);
       const socket = new WebSocket(
-        `${websocketProtocol}127.0.0.1:8000/ws/notification/?token=${accessToken}`
+        `${websocketProtocol}13.49.68.219/ws/notification/?token=${accessToken}`
       );
 
       socket.onopen = () => {

@@ -1,5 +1,5 @@
 
-
+import { Navigate } from "react-router-dom";
 
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
@@ -8,6 +8,7 @@ import Axios from "axios";
 import { Link } from "react-router-dom";
 import Layout from "../components/Layout";
 import PostDetail from "../components/PostDetail";
+import { useSelector } from "react-redux";
 
 const Profiles = () => { 
   const { id } = useParams()
@@ -15,6 +16,7 @@ const Profiles = () => {
   const [posts, setPosts] = useState([]);
   const [PostDetailOpen, setPostDetailOpen] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
+  const { isAuthenticated} = useSelector((state) => state.user);
   const accessToken = localStorage.getItem("access_token"); 
   
 
@@ -62,6 +64,10 @@ const Profiles = () => {
   }
   console.log(id, "iam the id who cameeee")
   console.log(user)
+
+  if (!isAuthenticated  && user === null) {
+    return <Navigate to="/" />;
+  }
   
   return (
     <div>

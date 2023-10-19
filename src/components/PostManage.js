@@ -1,18 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import createPostApi from "../api/CreatePostApi";
+import { FaTimes } from "react-icons/fa";
 
-import {FaTimes}   from   "react-icons/fa"
- 
-
-const PostManage = ({ postId,onCancel }) => {
+const PostManage = ({ postId, onCancel }) => {
   const [image, setImage] = useState(null);
   const [caption, setCaption] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
+  const [isLoading, setIsLoading] = useState(false); // New state variable
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setIsLoading(true); // Set loading state
       await createPostApi(caption, image);
       toast.success("Successfully Created", {
         position: "top-center",
@@ -24,6 +24,8 @@ const PostManage = ({ postId,onCancel }) => {
       toast.error("Failed to Create Post", {
         position: "top-center",
       });
+    } finally {
+      setIsLoading(false); // Reset loading state
     }
   };
 
@@ -66,20 +68,18 @@ const PostManage = ({ postId,onCancel }) => {
 
   return (
     <div
-      className= "overflow-y-hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-700 bg-opacity-40"
+      className="overflow-y-hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-700 bg-opacity-40"
     >
-        <div ref={modalRef} className="bg-white w-full max-w-md p-4 rounded-lg shadow-lg mx-auto pt-20">
-      
-        <div className="flex justify-between items-center mb-2 ">
-        <p className="text-xl font-semibold ">create post</p>
-        <button
-          className="text-white bg-red-500 p-2 rounded-3xl"
-          onClick={onCancel}
-        >
-          <FaTimes />
-        </button>
-      </div>
-      
+      <div ref={modalRef} className="bg-white w-full max-w-md p-4 rounded-lg shadow-lg mx-auto pt-20">
+        <div className="flex justify-between items-center mb-2">
+          <p className="text-xl font-semibold">create post</p>
+          <button
+            className="text-white bg-red-500 p-2 rounded-3xl"
+            onClick={onCancel}
+          >
+            <FaTimes />
+          </button>
+        </div>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <input
@@ -102,7 +102,7 @@ const PostManage = ({ postId,onCancel }) => {
               <button
                 type="button"
                 onClick={handleChooseImageClick}
-                className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600"
+                className="bg-blue-500 text-white py-2 px-4 rounded-lg hover-bg-blue-600"
               >
                 Add Image
               </button>
@@ -121,7 +121,7 @@ const PostManage = ({ postId,onCancel }) => {
             <div className="mb-4">
               <button
                 type="button"
-                className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 mr-2"
+                className="bg-red-500 text-white py-2 px-4 rounded-lg hover-bg-red-600 mr-2"
                 onClick={() => {
                   setImage(null);
                   setImagePreview(null);
@@ -129,12 +129,17 @@ const PostManage = ({ postId,onCancel }) => {
               >
                 Remove Image
               </button>
-              <button
-                type="submit"
-                className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600"
-              >
-                {postId ? "Update Post" : "Create Post"}
-              </button>
+              {isLoading ? (
+                <p className="text-center text-gray-600">Uploading...</p>
+              ) : (
+                <button
+                  type="submit"
+                  className="bg-green-500 text-white py-2 px-4 rounded-lg hover-bg-green-600"
+                  disabled={isLoading}
+                >
+                  {postId ? "Update Post" : "Create Post"}
+                </button>
+              )}
             </div>
           )}
         </form>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { BASE_URL } from "../utils/constants";
 import Axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import PostDetail from "../components/PostDetail";
 import { BiEdit } from "react-icons/bi";
@@ -17,7 +17,7 @@ const UserProfile = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [message, setMessage] = useState("");
   
-  const { user } = useSelector((state) => state.user);
+  const { user, isAuthenticated } = useSelector((state) => state.user);
 
   useEffect(() => {
     Axios.get(`${BASE_URL}/post/`, {
@@ -80,6 +80,10 @@ const UserProfile = () => {
   const handleCancelUpdate = () => {
     setUpdateMode(false);
   };
+
+  if (!isAuthenticated  && user === null) {
+    return <Navigate to="/" />;
+  }
 
 
   return (
