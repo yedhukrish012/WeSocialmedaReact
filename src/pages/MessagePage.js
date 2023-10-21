@@ -70,10 +70,10 @@ const MessagePage = () => {
       const data = await CreateChatRoomAPI(userId);
       const accessToken = localStorage.getItem("access_token");
       const websocketProtocol =
-        window.location.protocol === "https:" ? "ws://" : "ws://";
+        window.location.protocol === "https:" ? "wss://" : "ws://";
       // const wsUrl = `${websocketProtocol}127.0.0.1:8000/ws/chat/${data.id}/?token=${accessToken}`;
       const wsUrl = `${websocketProtocol}theghostkart.shop:8001/ws/chat/${data.id}/?token=${accessToken}`;
-      console.log(wsUrl,"wbsocketurlllll")
+      
 
       const newChatWs = new WebSocket(wsUrl);
       setTrigger(false);
